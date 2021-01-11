@@ -1,0 +1,6 @@
+
+pip install torch torchvision
+pip install numpy matplotlib spacy torchtext seaborn
+
+# CUDA 10.2
+
