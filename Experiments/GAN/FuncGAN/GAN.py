@@ -3,11 +3,10 @@ import os
 import torch
 from torch import nn
 
-from Experiments.Visualization.Visualizer import Visualizer
-from Experiments.GAN.FuncGAN.Discriminator import Discriminator
-from Experiments.GAN.FuncGAN.Generator import Generator
+from Experiments.GAN.GenericGAN.GenericGAN import GenericGAN
 
-class GAN():
+
+class GAN(GenericGAN):
     '''
         Create a batch
             r real values labeled 1
@@ -21,11 +20,8 @@ class GAN():
         Train G to minimize loss
             trains to generate better fakes
     '''
-    def __init__(self, train_data_set):
-        self._discriminator = Discriminator()
-        self._generator = Generator()
-        self._train_set = train_data_set
-        self.v = Visualizer()
+    def __init__(self, train_data_set, discriminator, generator, visualizer):
+        super().__init__(train_data_set, discriminator, generator, visualizer)
         self.latent_dim = self._generator.latent_space_dimensions
         self.model_path = "Models"
         self.g_model_path = os.path.join(self.model_path, f"G_Model_{str(self.latent_dim)}.mdl")
@@ -34,19 +30,6 @@ class GAN():
         self.batch_size = 32
         self.lr = 0.001
         self.num_epochs = 300
-
-    def save_model(self):
-        torch.save(self._generator.model.state_dict(), self.g_model_path)
-        torch.save(self._discriminator.model.state_dict(), self.d_model_path)
-
-    def model_exists(self):
-        return os.path.exists(self.g_model_path)
-
-    def restore_model(self):
-        self._generator.model.load_state_dict(torch.load(self.g_model_path))
-        self._generator.model.eval()
-        self._discriminator.model.load_state_dict(torch.load(self.d_model_path))
-        self._discriminator.model.eval()
 
     def show_training_data(self):
         X = [row[0].data[0].item() for row in self._train_set]

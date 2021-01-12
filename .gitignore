@@ -1,3 +1,9 @@
 .idea
 *.pyc
 *.class
+__pycache__
+checkpoint
+models
+MNIST
+iwslt.pt
+.data
