@@ -28,7 +28,7 @@ class Visualizer:
 
     def visualize_data_img(self, title, images):
         # only plot the first 16 images
-        end = max(16, len(images))
+        end = min(16, len(images))
         for i in range(end):
             plt.subplot(4, 4, i + 1)
             plt.imshow(images[i].reshape(28, 28), cmap="gray_r")

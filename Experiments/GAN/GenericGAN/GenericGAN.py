@@ -4,7 +4,8 @@ import torch
 
 
 class GenericGAN(ABC):
-    def __init__(self, train_data_set, discriminator, generator, visualizer):
+    def __init__(self, logger, train_data_set, discriminator, generator, visualizer):
+        self.logger = logger
         self._train_set = train_data_set
         self._discriminator = discriminator
         self._generator = generator

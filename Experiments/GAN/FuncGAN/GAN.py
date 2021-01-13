@@ -20,8 +20,8 @@ class GAN(GenericGAN):
         Train G to minimize loss
             trains to generate better fakes
     '''
-    def __init__(self, train_data_set, discriminator, generator, visualizer):
-        super().__init__(train_data_set, discriminator, generator, visualizer)
+    def __init__(self, logger, train_data_set, discriminator, generator, visualizer):
+        super().__init__(logger, train_data_set, discriminator, generator, visualizer)
         self.latent_dim = self._generator.latent_space_dimensions
         self.model_path = "Models"
         self.g_model_path = os.path.join(self.model_path, f"G_Model_{str(self.latent_dim)}.mdl")

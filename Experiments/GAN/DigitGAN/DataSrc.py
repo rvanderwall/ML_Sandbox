@@ -4,9 +4,10 @@ import torchvision.transforms as xform
 
 
 class DataSrc:
-    def __init__(self):
+    def __init__(self, logger):
         torch.manual_seed(142)
         self.shape = (28, 28)
+        self.logger = logger
 
     def image_shape(self):
         return self.shape
@@ -19,4 +20,5 @@ class DataSrc:
         train_set = torchvision.datasets.MNIST(
             root=".", train=True, download=True, transform=transform
         )
+        self.logger.log(f"Imported data with {len(train_set)} data points")
         return train_set

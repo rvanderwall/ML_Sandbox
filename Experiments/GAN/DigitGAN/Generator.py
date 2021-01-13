@@ -5,7 +5,7 @@ class Generator(nn.Module):
     def __init__(self, shape):
         super().__init__()
         self.shape = shape
-        self._input_size = shape[0] * shape[1]
+        self._output_size = shape[0] * shape[1]
         self.latent_space_dimensions = 100
         self.model = nn.Sequential(
             nn.Linear(self.latent_space_dimensions, 256),
@@ -14,7 +14,7 @@ class Generator(nn.Module):
             nn.ReLU(),
             nn.Linear(512, 1024),
             nn.ReLU(),
-            nn.Linear(1024, self._input_size),
+            nn.Linear(1024, self._output_size),
             nn.Tanh(),
         )
 
