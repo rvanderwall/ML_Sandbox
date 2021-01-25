@@ -17,7 +17,7 @@ class GAN(GenericGAN):
 
         self.batch_size = 32
         self.d_lr = 0.0001
-        self.g_lr = 0.001
+        self.g_lr = 0.0001
         self.num_epochs = 10
 
         self._train_loader = torch.utils.data.DataLoader(
