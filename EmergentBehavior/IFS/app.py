@@ -1,6 +1,10 @@
-import math
 import random
-from p5 import Vector, stroke, circle
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+from Visualization.GraphicPlayfield import GraphicPlayfield
+
 
 # W(x,y) = T * X + B
 # T is a 2x2 transform matrix
@@ -44,44 +48,86 @@ tree = [
     [ 0.42,  0.42, -0.42, 0.42, 0.0, 0.2, 0.40],
 ]
 
-SCREEN_X = 350
-SCREEN_Y = 325
-x_offset = 0
-y_offset = 0
-NUM_ITERATIONS = 2500
 
-def set_pixel(x, y):
-    stroke(255)
-    circle((x, y), radius=10)
+""" Iterated Function System"""
+class IFS:
+    def __init__(self, W):
+        self.NUM_ITERATIONS = 2500
+        self.x = []
+        self.y = []
+        self.W = W
+        self.last_x = 0
+        self.last_y = 0
+
+    def all_steps(self):
+        x = 0
+        y = 0
+        for n in range(self.NUM_ITERATIONS):
+            row = self.get_row(self.W)
+            x, y = self.get_new_point(row, x, y)
+            self.set_pixel(x, y)
+
+    def step(self):
+        row = self.get_row(self.W)
+        self.last_x, self.last_y = self.get_new_point(row, self.last_x, self.last_y)
+        self.set_pixel(self.last_x, self.last_y)
+
+    def set_pixel(self, x, y):
+        self.x.append(x)
+        self.y.append(y)
+
+    def get_row(self, W):
+        pk = random.uniform(0, 1)
+        for i in range(len(W)):
+            row = W[i]
+            p = row[6]
+            if pk < p:
+                return row
+            pk -= p
+
+        # Improperly formed W, probabilities should total 1.0
+        return None
+
+    def get_new_point(self, row, x, y):
+        new_x = row[0] * x + row[1] * y + row[4]
+        new_y = row[2] * x + row[3] * y + row[5]
+        return new_x, new_y
 
 
-def get_row(W):
-    pk = random.uniform(0, 1)
-    for i in range(len(W)):
-        row = W[i]
-        p = row[6]
-        if pk < p:
-            return row
-        pk -= p
+ifs = None
+points = None
+class Animator:
+    def __init__(self):
+        pass
 
-    # Improperly formed W, probabilities should total 1.0
-    return None
+    @staticmethod
+    def init():
+        """initialize animation"""
+        return
 
+    @staticmethod
+    def animate(i):
+        # """perform animation step"""
+        global ifs, points
+        ifs.step()
+        # update pieces of the animation
+        points.set_data(ifs.x, ifs.y)
+        return
 
-def get_new_point(row, x, y):
-    new_x = row[0] * x + row[1] * y + row[4]
-    new_y = row[2] * x + row[3] * y + row[5]
-    return new_x, new_y
+    def run(self, rules):
+        global ifs, points
+        ifs = IFS(rules)
+        size = 0.01
+        bounds = [-2, 2, -2, 2]
+        gpf = GraphicPlayfield(size, bounds)
 
+        points, fig = gpf.build_graphic_playfield()
 
-def run():
-    x = 0
-    y = 0
-    W = square
-    for n in range(NUM_ITERATIONS):
-        row = get_row(square)
-        x, y = get_new_point(x, y, row)
-        set_pixel(x, y)
+        ani = animation.FuncAnimation(fig, self.animate, frames=600,
+                                      interval=10, blit=False, init_func=self.init)
+        plt.show()
+
 
 if __name__ == "__main__":
-    get_row(square)
+    a = Animator()
+    a.run(fern)

@@ -25,9 +25,10 @@ Ideas for version 2.0:
     cone boid shape --> change boid axis to indicate direction
 """
 
+""""""
 #from visual import *
 from random import randrange
-from ParticleSim.Flocking.ani_exp import run
+#from ParticleSim.Flocking.ani_exp import run
 
 def display(title):
     pass
@@ -41,8 +42,11 @@ def vector(x,y,z):
     pass
 class color:
     white = 0xffffff
+    yellow = 0xffff00
+    red = 0xff0000
+    blue = 0x0000ff
 
-class Boids:
+class BoidsXXX:
     def __init__(self, numboids = 10, sidesize = 100.0):     #class constructor with default parameters filled
         #class constants
         display(title = "Boids v1.0")   #put a title in the display window
@@ -219,6 +223,5 @@ class Boids:
 
 if __name__ == "__main__":
     # if you run this from Idle via the F5 key, the following occurs:
-    #    b = Boids()     #instantiate the Boids class, the class constructor takes care of the rest.
-    ##    b = Boids(20, 60.0)   #here's a way to change the flock amount, and space size
-    run()
+    b = Boids()     #instantiate the Boids class, the class constructor takes care of the rest.
+    # b = Boids(20, 60.0)   #here's a way to change the flock amount, and space size
