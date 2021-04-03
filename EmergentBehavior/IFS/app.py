@@ -5,7 +5,11 @@ import matplotlib.animation as animation
 
 from Visualization.GraphicPlayfield import GraphicPlayfield
 
-
+# An Iterated Function System (IFS) is:
+#   a set of linear maps (affine transforms)
+#   associated set of probabilities
+#   all maps have eigenvalues < 1
+#
 # W(x,y) = T * X + B
 # T is a 2x2 transform matrix
 #    [ a b ]
@@ -48,6 +52,22 @@ tree = [
     [ 0.42,  0.42, -0.42, 0.42, 0.0, 0.2, 0.40],
 ]
 
+# m1(z) = sz + 1
+# m2(z) = sz - 1
+# s = 0.33
+cantor = [
+    [ 0.33, 0.0, 0.0, 0.33,  1.0, 0, 0.5],
+    [ 0.33, 0.0, 0.0, 0.33, -1.0, 0, 0.5]
+]
+
+# s = i/2 + 1/2
+# sz = (i/2 + 1/2)(x + iy) = xi/2 + x/2 - y/2 + iy/2
+#    = (x/2 - y/2) + (x/2 + y/2)i
+dragon = [
+    [0.5, -0.5, 0.5, 0.5,  1.5, 0, 0.5],
+    [0.5, -0.5, 0.5, 0.5, -0.5, 0, 0.5]
+]
+
 
 """ Iterated Function System"""
 class IFS:
@@ -68,9 +88,11 @@ class IFS:
             self.set_pixel(x, y)
 
     def step(self):
-        row = self.get_row(self.W)
-        self.last_x, self.last_y = self.get_new_point(row, self.last_x, self.last_y)
-        self.set_pixel(self.last_x, self.last_y)
+        # Run several iterations within each step
+        for _ in range(100):
+            row = self.get_row(self.W)
+            self.last_x, self.last_y = self.get_new_point(row, self.last_x, self.last_y)
+            self.set_pixel(self.last_x, self.last_y)
 
     def set_pixel(self, x, y):
         self.x.append(x)
@@ -117,7 +139,7 @@ class Animator:
     def run(self, rules):
         global ifs, points
         ifs = IFS(rules)
-        size = 0.01
+        size = 0.005
         bounds = [-2, 2, -2, 2]
         gpf = GraphicPlayfield(size, bounds)
 
@@ -130,4 +152,4 @@ class Animator:
 
 if __name__ == "__main__":
     a = Animator()
-    a.run(fern)
+    a.run(dragon)
