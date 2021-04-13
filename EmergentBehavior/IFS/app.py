@@ -151,5 +151,6 @@ class Animator:
 
 
 if __name__ == "__main__":
+    print("IFS simulator")
     a = Animator()
-    a.run(dragon)
+    a.run(fern)
