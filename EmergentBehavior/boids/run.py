@@ -7,9 +7,11 @@ height = 1000
 
 flock = [Boid(*np.random.rand(2)*1000, width, height) for _ in range(30)]
 
+
 def setup():
     # This happens once
-    size(width, height) # Instead of creating a canvas
+    size(width, height)  # Instead of creating a canvas
+
 
 def draw():
     # This happens every time
@@ -22,6 +24,4 @@ def draw():
         boid.edges()
 
 
-
 run()
-

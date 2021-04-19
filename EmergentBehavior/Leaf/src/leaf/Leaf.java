@@ -100,24 +100,25 @@ class Leaf extends Frame
 
 	static public void main (String [] args) {
 		// Use <file> <xSize> <ySize> <xScale> <yScale> <count>
-		if (args.length < 4 ) {
+		if (args.length < 8 ) {
 		    System.out.print("Use: <file> <xSize> <ySize> " +
 				"<xOffset>  <yOffset> " +
 				"<xScale>  <yScale>  <count>\n");
 		    System.exit(0);
 		}
 		System.out.print("Leaf Starting\n");
-                int xSize = Integer.valueOf(args[1]).intValue();
-                int ySize = Integer.valueOf(args[2]).intValue();
-                double xScale = Double.valueOf(args[5]).doubleValue();
-                double yScale = Double.valueOf(args[6]).doubleValue();
-                int xOffset = Integer.valueOf(args[3]).intValue();
-                int yOffset = Integer.valueOf(args[4]).intValue();
-                int count   = Integer.valueOf(args[7]).intValue();
+		String fName = args[0];
+        int xSize = Integer.valueOf(args[1]).intValue();
+        int ySize = Integer.valueOf(args[2]).intValue();
+        int xOffset = Integer.valueOf(args[3]).intValue();
+        int yOffset = Integer.valueOf(args[4]).intValue();
+        double xScale = Double.valueOf(args[5]).doubleValue();
+        double yScale = Double.valueOf(args[6]).doubleValue();
+        int count   = Integer.valueOf(args[7]).intValue();
                 
 		Leaf app = new Leaf("Leaf Simulator");
 		app.init(xSize, ySize, xOffset, yOffset, xScale, yScale, count);
-		app.run(args[0]);
+		app.run(fName);
 	}
 }
 
