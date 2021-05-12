@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.util.*;
 import java.lang.*;
@@ -11,7 +9,6 @@ import java.awt.Color;
 
 class Attract extends Frame
 {
-
 	int xSize;
 	int ySize;
 	int xOffset;
@@ -28,7 +25,8 @@ class Attract extends Frame
 
 	public void init(int x, int y, 
 			 int xO,int yO,
-			 double xS, double yS, int c) {
+			 double xS, double yS, int c)
+	{
 		xSize=x;
 		ySize=y;
 		xOffset = xO;
@@ -40,7 +38,7 @@ class Attract extends Frame
 		resize(xSize,ySize);
 		show();
 		gr = getGraphics();
-	        gr.setColor(Color.black);
+	    gr.setColor(Color.black);
 	}
 
 
