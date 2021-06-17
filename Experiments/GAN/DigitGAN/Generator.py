@@ -9,11 +9,11 @@ class Generator(nn.Module):
         self.latent_space_dimensions = 100
         self.model = nn.Sequential(
             nn.Linear(self.latent_space_dimensions, 256),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(256, 512),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(512, 1024),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Linear(1024, self._output_size),
             nn.Tanh(),
         )
