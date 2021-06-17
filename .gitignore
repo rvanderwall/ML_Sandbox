@@ -8,3 +8,4 @@ MNIST
 iwslt.pt
 .data
 venv
+.DS_STORE
