@@ -19,6 +19,7 @@ def log(msg):
 
 log("Starting")
 log("Conv LSTM for Frame prediction in video imaging")
+print(tf.config.experimental.list_physical_devices('GPU'))
 
 def get_data_sets():
     # Download and load the dataset.
@@ -123,7 +124,7 @@ def train_model(model, x_train, y_train, x_val, y_val):
     reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor="val_loss", patience=5)
 
     # Define modifiable training hyperparameters.
-    epochs = 20
+    epochs = 1
     batch_size = 5
 
     # Fit the model to the training data.
@@ -137,6 +138,99 @@ def train_model(model, x_train, y_train, x_val, y_val):
         verbose=True
     )
 
+MODEL_NAME="Models/Model1"
+def save_model(model):
+    model.save(MODEL_NAME)
+
+def restore_model():
+    # pip install 'h5py==2.10.0' --force-reinstall
+    model = keras.models.load_model(MODEL_NAME)
+    return model
+
+def show_prediction(model, example):
+
+    # Pick the first/last ten frames from the example.
+    frames = example[:10, ...]
+    original_frames = example[10:, ...]
+
+    # Predict a new set of 10 frames.
+    for _ in range(10):
+        # Extract the model's prediction and post-process it.
+        new_prediction = model.predict(np.expand_dims(frames, axis=0))
+        new_prediction = np.squeeze(new_prediction, axis=0)
+        predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
+
+        # Extend the set of prediction frames.
+        frames = np.concatenate((frames, predicted_frame), axis=0)
+
+    # Construct a figure for the original and new frames.
+    fig, axes = plt.subplots(2, 10, figsize=(20, 4))
+
+    # Plot the original frames.
+    for idx, ax in enumerate(axes[0]):
+        ax.imshow(np.squeeze(original_frames[idx]), cmap="gray")
+        ax.set_title(f"Frame {idx + 11}")
+        ax.axis("off")
+
+    # Plot the new frames.
+    new_frames = frames[10:, ...]
+    for idx, ax in enumerate(axes[1]):
+        ax.imshow(np.squeeze(new_frames[idx]), cmap="gray")
+        ax.set_title(f"Frame {idx + 11}")
+        ax.axis("off")
+
+    # Display the figure.
+    plt.show()
+
+def make_gifs(model, examples):
+    # Iterate over the examples and predict the frames.
+    predicted_videos = []
+    for example in examples:
+        # Pick the first/last ten frames from the example.
+        frames = example[:10, ...]
+        original_frames = example[10:, ...]
+        new_predictions = np.zeros(shape=(10, *frames[0].shape))
+
+        # Predict a new set of 10 frames.
+        for i in range(10):
+            # Extract the model's prediction and post-process it.
+            frames = example[: 10 + i + 1, ...]
+            new_prediction = model.predict(np.expand_dims(frames, axis=0))
+            new_prediction = np.squeeze(new_prediction, axis=0)
+            predicted_frame = np.expand_dims(new_prediction[-1, ...], axis=0)
+
+            # Extend the set of prediction frames.
+            new_predictions[i] = predicted_frame
+
+        # Create and save GIFs for each of the ground truth/prediction images.
+        for frame_set in [original_frames, new_predictions]:
+            # Construct a GIF from the selected video frames.
+            current_frames = np.squeeze(frame_set)
+            current_frames = current_frames[..., np.newaxis] * np.ones(3)
+            current_frames = (current_frames * 255).astype(np.uint8)
+            current_frames = list(current_frames)
+
+            # Construct a GIF from the frames.
+            with io.BytesIO() as gif:
+                imageio.mimsave(gif, current_frames, "GIF", fps=5)
+                predicted_videos.append(gif.getvalue())
+
+    # Display the videos.
+    print(" Truth\tPrediction")
+    for i in range(0, len(predicted_videos), 2):
+        # Construct and display an `HBox` with the ground truth and prediction.
+        box = HBox(
+            [
+                widgets.Image(value=predicted_videos[i]),
+                widgets.Image(value=predicted_videos[i + 1]),
+            ]
+        )
+        open(f"Images/Img_{i}.gif", 'wb').write(predicted_videos[i])
+        open(f"Images/Img_{i+1}.gif", 'wb').write(predicted_videos[i+1])
+
+        display((box,))
+        plt.show()
+
 
 def run():
     train_dataset, val_dataset = get_data_sets()
@@ -148,10 +242,22 @@ def run():
     log("Training Dataset Shapes: " + str(x_train.shape) + ", " + str(y_train.shape))
     log("Validation Dataset Shapes: " + str(x_val.shape) + ", " + str(y_val.shape))
 
-    visualize(train_dataset)
-    model = build_model(x_train)
-    train_model(model, x_train, y_train, x_val, y_val)
+    # visualize(train_dataset)
+    train = False
+    if train:
+        model = build_model(x_train)
+        train_model(model, x_train, y_train, x_val, y_val)
+        save_model(model)
+    else:
+        model = restore_model()
 
+    # Select a random example from the validation dataset.
+    example = val_dataset[np.random.choice(range(len(val_dataset)), size=1)[0]]
+    # show_prediction(model, example)
+
+    # Select a few random examples from the dataset.
+    examples = val_dataset[np.random.choice(range(len(val_dataset)), size=5)]
+    make_gifs(model, examples)
 
 if __name__ == "__main__":
     run()

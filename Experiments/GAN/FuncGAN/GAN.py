@@ -23,7 +23,7 @@ class GAN(GenericGAN):
     def __init__(self, logger, train_data_set, discriminator, generator, visualizer):
         super().__init__(logger, train_data_set, discriminator, generator, visualizer)
         self.latent_dim = self._generator.latent_space_dimensions
-        self.model_path = "Models"
+        self.model_path = "Model1"
         self.g_model_path = os.path.join(self.model_path, f"G_Model_{str(self.latent_dim)}.mdl")
         self.d_model_path = os.path.join(self.model_path, f"D_Model_{str(self.latent_dim)}.mdl")
 
