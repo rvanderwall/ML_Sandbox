@@ -6,6 +6,7 @@ from torch import nn
 from Experiments.GAN.GenericGAN.GenericGAN import GenericGAN
 
 # https://realpython.com/generative-adversarial-networks/
+# https://github.com/soumith/ganhacks
 class GAN(GenericGAN):
     def __init__(self, logger, train_data_set, discriminator, generator, visualizer, device):
         super().__init__(logger, train_data_set, discriminator, generator, visualizer)
@@ -17,7 +18,7 @@ class GAN(GenericGAN):
 
         self.batch_size = 32
         self.d_lr = 0.0001
-        self.g_lr = 0.0001
+        self.g_lr = 0.00005
         self.num_epochs = 10
 
         self._train_loader = torch.utils.data.DataLoader(
@@ -72,9 +73,10 @@ class GAN(GenericGAN):
             self._optimizer_discriminator.step()
 
             # Data for training the generator
-            latent_space_samples = torch.randn((self.batch_size * 2, self.latent_dim)).to(device=self.device)
+            g_batch_size = self.batch_size * 2
+            latent_space_samples = torch.randn((g_batch_size, self.latent_dim)).to(device=self.device)
             generated_samples = self._generator(latent_space_samples)
-            generated_samples_labels = torch.ones((self.batch_size * 2, 1)).to(device=self.device)
+            generated_samples_labels = torch.ones((g_batch_size, 1)).to(device=self.device)
 
             # Training the generator
             self._generator.zero_grad()
@@ -87,6 +89,8 @@ class GAN(GenericGAN):
             batch_num += 1
 
             # Show loss
+            # D_Loss should be around 0.5
+            # G_loss should be around 0.5 - 2.0
             if batch_num == last_batch_num-1 or batch_num % 100 == 0:
                 msg = f"Epoch: {epoch}, Batch: {batch_num}, Loss D: {loss_discriminator} Loss G.: {loss_generator}"
                 self.logger.log(msg)

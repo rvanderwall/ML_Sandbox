@@ -4,6 +4,7 @@
 __pycache__
 checkpoint
 models
+Models/
 MNIST
 iwslt.pt
 .data
