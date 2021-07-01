@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from GPT2 import model
+import model
 
 def top_k_logits(logits, k):
     if k == 0:

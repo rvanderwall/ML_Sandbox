@@ -1,14 +1,14 @@
-from GPT2.scrape import scrape_guten
+from scrape import scrape_guten
 import gpt_2_simple as gpt2
 import os
 
-from GPT2.Chat import chat
+from Chat import Chatbot
 
 model_name = "124M"
-training_text = "trainingtext.txt"
+# training_text = "trainingtext.txt"
+training_text = "GuideToTesting.txt"
+
 # Download from https://github.com/minimaxir/gpt-2-simple
-
-
 def prep():
     if not os.path.isdir(os.path.join("models", model_name)):
         print(f"Downloading {model_name} model...")
@@ -25,26 +25,31 @@ def tune_from_scratch():
     # to     restore_from='fresh'
 
 
-def generate():
-    sess = gpt2.start_tf_sess()
-    gpt2.load_gpt2(sess, model_name='124M')
-    gpt2.generate(sess, model_name='124M')
-
-
 def tune():
     sess = gpt2.start_tf_sess()
     gpt2.finetune(sess,
                   training_text,
                   model_name=model_name,
-                  steps=50)
+                  steps=10000)
+
+
+def generate():
+    sess = gpt2.start_tf_sess()
+    gpt2.load_gpt2(sess, run_name="run1", checkpoint_dir="./checkpoint")
+    gpt2.generate(sess, length=200, run_name="run1", checkpoint_dir="./checkpoint")
+
+
+def chat():
+    bot = Chatbot("./checkpoint", "run1")
+    bot.chat()
 
 
 def main():
     print("Starting GPT")
-    prep()
+    #prep()
     # tune()
     # generate()
-    chat(model_name=model_name)
+    chat()
 
 if __name__ == "__main__":
     main()

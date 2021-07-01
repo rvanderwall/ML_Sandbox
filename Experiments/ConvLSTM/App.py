@@ -260,4 +260,5 @@ def run():
     make_gifs(model, examples)
 
 if __name__ == "__main__":
-    run()
+    # run()
+    pass

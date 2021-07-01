@@ -5,9 +5,9 @@ import random
 import numpy as np
 import tensorflow as tf
 
-from GPT2 import model
-from GPT2 import encoder
-from GPT2 import sample
+import model
+import encoder
+import sample
 
 class Conversation:
     """Simple Conversation class with two users, their nicks and the messages so
@@ -38,64 +38,78 @@ class Conversation:
     def text_gpt(self):
         return self.text_generic(2)
 
-def chat(model_name='117M', seed=None, length=50):
+class Chatbot:
+    def __init__(self, checkpoint_dir, run_name):
+        self.checkpnt_dir = checkpoint_dir
+        self.run_name = run_name
+        self.model_name = self.run_name
+        self.model_dir = self.checkpnt_dir
 
-    # Prepare conversation and context
-    conversation = Conversation("Hudson", "Jayme")
-    conversation.add_human("Hi!")
-    conversation.add_computer("Hey!")
-    conversation.add_human("I'm a human named {}, who are you?".format(conversation.name_human))
-    conversation.add_computer("I'm a computer program but refer to me as {} please".format(conversation.name_computer))
-    conversation.add_human("How exciting! Are you ready to chat?")
-    conversation.add_computer("Sure thing! You go first.")
+    def __get_conversation_starter(self):
+        # Prepare conversation and context
+        conversation = Conversation("Robert", "CopeBot")
+        conversation.add_human("Hi!")
+        conversation.add_computer("Hey!")
+        conversation.add_human("I'm a human named {}, who are you?".format(conversation.name_human))
+        conversation.add_computer("I'm a computer program but refer to me as {} please".format(conversation.name_computer))
+        conversation.add_human("How exciting! Are you ready to chat?")
+        conversation.add_computer("Sure thing! You go first.")
+        return conversation
 
-    # Prepare the model
-    enc = encoder.get_encoder(model_name, "models")
-    hparams = model.default_hparams()
-    with open(os.path.join('models', model_name, 'hparams.json')) as f:
-        hparams.override_from_dict(json.load(f))
+    def chat(self, length=100, seed=42):
+        conversation = self.__get_conversation_starter()
 
-    if length > hparams.n_ctx:
-        raise ValueError("Can't get samples longer than window size: %s" % hparams.n_ctx)
+        # Prepare the model
+        enc = encoder.get_encoder(self.model_name, self.model_dir)
+        hparams = model.default_hparams()
+        with open(os.path.join(self.model_dir, self.model_name, 'hparams.json')) as f:
+            hparams.override_from_dict(json.load(f))
 
-    with tf.Session(graph=tf.Graph()) as sess:
-        np.random.seed(seed)
-        tf.set_random_seed(seed)
-        context = tf.placeholder(tf.int32, [1, None])
-        output = sample.sample_sequence(
-                hparams=hparams, length=length, context=context, batch_size=1
-                # temperature=temperature, top_k=top_k
-                )
+        if length > hparams.n_ctx:
+            raise ValueError("Can't get samples longer than window size: %s" % hparams.n_ctx)
 
-        saver = tf.train.Saver()
-        ckpt = tf.train.latest_checkpoint(os.path.join('models', model_name))
-        saver.restore(sess, ckpt)
+        with tf.Session(graph=tf.Graph()) as sess:
+            np.random.seed(seed)
+            tf.set_random_seed(seed)
+            context = tf.placeholder(tf.int32, [1, None])
+            output = sample.sample_sequence(
+                    hparams=hparams, length=length, context=context, batch_size=1
+                    # temperature=temperature, top_k=top_k
+                    )
 
-        # Print the initial context/prompt
-        print(conversation.text_generic(1))
+            saver = tf.train.Saver()
+            ckpt = tf.train.latest_checkpoint(os.path.join(self.checkpnt_dir, self.run_name))
+            saver.restore(sess, ckpt)
 
-        while True:
+            # Print the initial context/prompt
+            print(conversation.text_generic(1))
 
-            # Let the human speak
-            message = None
-            while not message:
-                message = input("{}: ".format(conversation.name_human))
-            conversation.add_human(message)
+            while True:
+                # Let the human speak
+                message = None
+                while not message:
+                    message = input("{}: ".format(conversation.name_human))
+                conversation.add_human(message)
 
-            # Let the computer speak
-            prompt = conversation.text_gpt() + "\n\n{}: ".format(conversation.name_computer)
+                # Let the computer speak
+                prompt = conversation.text_gpt() + "\n\n{}: ".format(conversation.name_computer)
 
-            encoded_prompt = enc.encode(prompt)
+                encoded_prompt = enc.encode(prompt)
 
-            result= sess.run(output, feed_dict={
-                context: [encoded_prompt]
-                })[:, len(encoded_prompt):]
-            text = enc.decode(result[0])
+                result= sess.run(output, feed_dict={
+                    context: [encoded_prompt]
+                    })[:, len(encoded_prompt):]
+                text = enc.decode(result[0])
 
-            replies = text.split('\n')
-            reply = random.choice(replies)
-            conversation.add_computer(reply)
-            print("{}: {}".format(conversation.name_computer, reply))
+                replies = text.split('\n')
 
-if __name__ == '__main__':
-    chat()
+                reply = self.pick_reply(replies)
+                conversation.add_computer(reply)
+                print("{}: {}".format(conversation.name_computer, reply))
+
+    def pick_reply(self, replies):
+        valid_replies = [ r for r in replies if len(r) > 5]
+        if len(valid_replies) > 0:
+            return random.choice(valid_replies)
+        else:
+            return "Nothing to say at the moment"
