@@ -54,7 +54,7 @@ def run_monty_hall():
     model.bake()
     print(model.probability([['A', 'A', 'A'],
                              ['A', 'A', 'B'],
-                             ['C', 'C', 'B']]))
+                             ['A', 'A', 'C']]))
     print(model.predict([['A', 'A', None], ]))
 
     # Given I choose A and Monty opened B, what are the chances

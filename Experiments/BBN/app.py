@@ -1,5 +1,6 @@
 from BBN.monty_hal import run_monty_hall
 from BBN.cough import run_cough
+from BBN.titanic import run_titanic
 
 #
 # https://core.ac.uk/download/pdf/82092037.pdf
@@ -10,5 +11,6 @@ from BBN.cough import run_cough
 # https://www.researchgate.net/publication/43254631_Bayesian_belief_networks_Applications_in_ecology_and_natural_resource_management
 
 print("BBN")
-# run_monty_hall()
-run_cough()
+run_monty_hall()
+# run_cough()
+# run_titanic()

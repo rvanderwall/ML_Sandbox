@@ -1,6 +1,7 @@
 from math import exp, pow, factorial, sqrt
 from Visualization.Visualizer import Visualizer
 from Stats.mc_sim import get_list_of_randoms
+from SecretaryProblem import run_simulation
 
 
 def poisson(l, N):
@@ -36,4 +37,5 @@ def run():
 
 if __name__ == "__main__":
     # run()
-    get_list_of_randoms()
+    # get_list_of_randoms(100)
+    run_simulation()
