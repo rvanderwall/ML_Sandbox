@@ -3,6 +3,7 @@
 *.class
 __pycache__
 checkpoint
+.ipynb_checkpoints
 models
 Models/
 MNIST
