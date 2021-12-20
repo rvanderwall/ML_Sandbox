@@ -11,3 +11,4 @@ iwslt.pt
 .data
 venv
 .DS_STORE
+node_modules/

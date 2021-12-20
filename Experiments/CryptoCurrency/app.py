@@ -1,17 +1,18 @@
 import flask
 from flask import jsonify, request
 from flask_cors import cross_origin
-import json
+from flask_cors import CORS
 
 from CryptoCurrency.BlockChain import BlockChain
 from CryptoCurrency.Logger import Logger, LoggingMiddleware
 from CryptoCurrency.Controller import BobCoinController, get_controller
-PORT = 4044
+PORT = 4041
 
 
 def run():
+    logger = Logger("Blockchain demo")
     print("Crypto")
-    blockchain = BlockChain()
+    blockchain = BlockChain(logger)
     print("*** Start Mining BobCoins ***")
     print(blockchain.chain)
 
@@ -21,7 +22,7 @@ def run():
 
     blockchain.add_transaction(
         sender="0",     # This node created a new block
-        recipient="Bill Shatner",
+        receiver="Bill Shatner",
         amount=1
     )
 
@@ -52,7 +53,7 @@ def add_routes(log, app, controller: BobCoinController):
         return controller.mine_block()
 
     @app.route('/block/add_transaction', methods=['POST'])
-    def mine_block():
+    def add_transaction():
         return controller.add_transaction(request)
 
     @app.route('/chain', methods=['GET'])
@@ -85,6 +86,7 @@ def create_app():
     flask_app.wsgi_app = LoggingMiddleware(log, flask_app.wsgi_app)
     ctl = get_controller(log)
     flask_app = add_routes(log, flask_app, ctl)
+    CORS(flask_app)
     return flask_app
 
 

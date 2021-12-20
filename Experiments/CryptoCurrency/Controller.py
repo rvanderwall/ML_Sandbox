@@ -3,7 +3,7 @@ import functools
 from CryptoCurrency.BlockChain import BlockChain, mine_block
 
 def get_controller(logger):
-    bc = BlockChain()
+    bc = BlockChain(logger)
     controller = BobCoinController(logger, bc)
     return controller
 
@@ -42,20 +42,21 @@ class BobCoinController:
             'nonce': new_block.nonce,
             'previous_hash': new_block.prev_hash
         }
+        self.logger.info(f"Mined coin with index {new_block.index}")
         return jsonify(response), response_status
 
     # Getting the full Blockchain
     def get_chain(self):
-        self.logger.info("mine_block")
+        self.logger.info("get_chain")
         response_status = 200
         response = {
-            'chain': [str(block) for block in self.block_chain.chain],
+            'chain': [block.to_json() for block in self.block_chain.chain],
             'length': len(self.block_chain.chain)}
         return jsonify(response), response_status
 
     # Checking if the Blockchain is valid
     def is_valid(self):
-        self.logger.info("mine_block")
+        self.logger.info("is_valid")
         response_status = 200
         is_valid, bad_block = self.block_chain.check_chain_valid(self.block_chain.chain)
         if is_valid:
@@ -66,7 +67,7 @@ class BobCoinController:
 
     @verify_json_request
     def add_transaction(self, json_req):
-        self.logger.info("mine_block")
+        self.logger.info("add_transaction")
         response_status = 200
         transaction_keys = ['sender', 'receiver', 'amount']
         if not all(key in json_req for key in transaction_keys):
@@ -76,7 +77,7 @@ class BobCoinController:
         amt = json_req['amount']
         idx = self.block_chain.add_transaction(tx, rx, amt)
         resp = {'message': f"Transaction added to block {idx}"}
-
+        self.logger.info(f"Added transaction for {tx} to {rx}")
         return jsonify(resp), response_status
 
     def get_nodes(self):
@@ -89,7 +90,7 @@ class BobCoinController:
 
     @verify_json_request
     def connect_node(self, json_req):
-        self.logger.info("mine_block")
+        self.logger.info("connect_node")
         response_status = 200
         nodes = json_req.get('nodes')
         if nodes is None:
@@ -103,6 +104,7 @@ class BobCoinController:
         return jsonify(resp), response_status
 
     def replace_chain(self):
+        self.logger.info("replace_chain")
         is_replaced = self.block_chain.replace_chain()
         if is_replaced:
             response = {

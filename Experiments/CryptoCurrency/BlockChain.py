@@ -7,6 +7,27 @@ from urllib.parse import urlparse
 # https://medium.com/@MKGOfficial/build-a-simple-blockchain-cryptocurrency-with-python-django-web-framework-reactjs-f1aebd50b6c
 
 
+class Transaction:
+    def __init__(self, sender, receiver, amount):
+        self.json_res = {
+            'sender': sender,
+            'receiver': receiver,
+            'amount': amount,
+            'time': str(datetime.datetime.now())
+        }
+
+    @staticmethod
+    def from_json(json_transaction):
+        t = Transaction(json_transaction['sender'],
+                        json_transaction['receiver'],
+                        json_transaction['amount'])
+        t.json_res['time'] = json_transaction['time']
+        return t
+
+    def as_json(self):
+        return self.json_res
+
+
 class Block:
     def __init__(self, index, nonce, prev_hash, t_data, timestamp=None):
         self.index = index
@@ -21,6 +42,25 @@ class Block:
                                               self.timestamp)
         return hashlib.sha256(block_of_string.encode()).hexdigest()
 
+    @staticmethod
+    def from_json(json_block):
+        index = json_block['index']
+        nonce = json_block['nonce']
+        prev_hash = json_block['prev_hash']
+        transactions = [Transaction.from_json(json_transaction) for json_transaction in json_block['transactions']]
+        timestamp = json_block['timestamp']
+        block = Block(index, nonce, prev_hash, transactions, timestamp)
+        return block
+
+    def to_json(self):
+        json_res = {}
+        json_res['index'] = self.index
+        json_res['nonce'] = self.nonce
+        json_res['prev_hash'] = self.prev_hash
+        json_res['transactions'] = [transaction.as_json() for transaction in self.transactions]
+        json_res['timestamp'] = self.timestamp
+        return json_res
+
     def __repr__(self):
         return "{} - {} - {} - {} - {}".format(self.index, self.nonce,
                                                self.prev_hash, self.transactions,
@@ -28,13 +68,15 @@ class Block:
 
 
 class BlockChain:
-    def __init__(self):
+    def __init__(self, logger):
+        self.log = logger
         self.chain = []
         self.transactions = []
         self.nodes = set()
         self.construct_genesis()
 
     def construct_genesis(self):
+        self.transactions.append(Transaction("Genesis", "Bob", 0))
         self.create_block(nonce=0, prev_hash="0")
 
     def create_block(self, nonce, prev_hash) -> Block:
@@ -54,17 +96,13 @@ class BlockChain:
 
     def add_node(self, node):
         parsed_url = urlparse(node)
-        self.nodes.add(parsed_url)
+        netloc = parsed_url.netloc
+        self.log.info(f"Add node {node} to the node list as {parsed_url} - {netloc}")
+        self.nodes.add(netloc)
 
 
-    def add_transaction(self, sender, recipient, amount):
-        new_data = {
-            'sender': sender,
-            'recipient': recipient,
-            'amount': amount,
-            'time': str(datetime.datetime.now())
-        }
-        self.transactions.append(new_data)
+    def add_transaction(self, sender, receiver, amount):
+        self.transactions.append(Transaction(sender, receiver, amount))
         last_index = self.last_block.index
         current_index = last_index + 1
         return current_index
@@ -77,14 +115,18 @@ class BlockChain:
         longest_chain = None
         max_length = len(self.chain)
         for node in network:
-            response = requests.get(f"http://{node}/get_chain")
+            response = requests.get(f"http://{node}/chain")
             if response.status_code == 200:
                 json_chain = response.json()
                 length = json_chain['length']
                 chain = json_chain['chain']
-                if length > max_length and self.check_chain_valid(chain):
-                    max_length = length
-                    longest_chain = chain
+                if length > max_length:
+                    b_chain = [Block.from_json(block_string) for block_string in chain]
+                    if self.check_chain_valid(b_chain):
+                        max_length = length
+                        longest_chain = chain
+                    else:
+                        self.log.warn(f"Chain from {node} is invalid")
 
         if longest_chain:
             self.chain = longest_chain
@@ -146,7 +188,7 @@ class BlockChain:
 def mine_block(blockchain: BlockChain, details_miner) -> Block:
     blockchain.add_transaction(
         sender="0",     # it implies that this node created a new block
-        recipient=details_miner,
+        receiver=details_miner,
         amount=1,     # creating a new block is rewarded 1
     )
 
