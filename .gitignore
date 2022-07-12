@@ -12,3 +12,5 @@ iwslt.pt
 venv
 .DS_STORE
 node_modules/
+Experiments/BERT/saved_models/
+Experiments/SimpleProjects/Data/

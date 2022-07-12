@@ -1,6 +1,7 @@
-import matplotlib
-#backend; supported values are ['GTK3Agg', 'GTK3Cairo', 'MacOSX', 'nbAgg', 'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'TkCairo', 'WebAgg', 'WX', 'WXAgg', 'WXCairo', 'agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']
-matplotlib.use("TkAgg")
+# import matplotlib
+#
+# #backend; supported values are ['GTK3Agg', 'GTK3Cairo', 'MacOSX', 'nbAgg', 'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo', 'TkAgg', 'TkCairo', 'WebAgg', 'WX', 'WXAgg', 'WXCairo', 'agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']
+# matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -18,10 +19,17 @@ class Visualizer:
         self._plot(title, lim)
 
     def visualize_data_line(self, title, data_x, data_y, lim):
-        sns.set()
-        plt.figure(figsize=(6, 4))
+        # sns.set()
+        # plt.figure(figsize=(6, 4))
         plt.plot(data_x, data_y)
         self._plot(title, lim)
+
+    def visualize_2_data_lines(self, title, data_x, y1, y2):
+        # sns.set()
+        # plt.figure(figsize=(6, 4))
+        plt.plot(data_x, y1)
+        plt.plot(data_x, y2)
+        self._plot(title, None)
 
     def visualize_data_scatter(self, title, data_x, data_y, lim):
         sns.set()

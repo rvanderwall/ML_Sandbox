@@ -23,3 +23,12 @@ Miles Porter
 Bob Banfield, PhD
 Ross Stump
 
+# TOOLS
+- rapids.io framework supports these using GPUs
+  - cuDF: Pandas like functionality
+  - cuML: Scikit-learn
+  - cuXFilter: Visualization
+  - cuGraph: graphs
+  - XGBoost
+  - Dask, Spark
+- 
