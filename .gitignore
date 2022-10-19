@@ -1,6 +1,7 @@
 .idea
 *.pyc
 *.class
+*.avi
 __pycache__
 checkpoint
 .ipynb_checkpoints
@@ -9,6 +10,7 @@ Models/
 MNIST
 iwslt.pt
 .data
+data/
 venv
 .DS_STORE
 node_modules/
