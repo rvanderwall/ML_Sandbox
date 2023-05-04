@@ -15,9 +15,7 @@ curl https://api.openai.com/v1/completions --ssl-no-revoke \
 
 """
 
-KEY = "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"
-# openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.api_key = KEY
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 prompt = "I am a highly intelligent question answering bot. \
 If you ask me a question that is rooted in truth, I will give you the answer. \
