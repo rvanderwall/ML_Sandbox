@@ -16,3 +16,4 @@ venv
 node_modules/
 Experiments/BERT/saved_models/
 Experiments/SimpleProjects/Data/
+Experiments/ChatGPT/cache/
